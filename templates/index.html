@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Query Interface</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Rightful</h1>
+        <form id="query-form" method="POST" action="/search">
+            <div class="form-group">
+                <input type="text" name="query" class="form-control" placeholder="Enter your query here" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Search</button>
+        </form>
+        <div id="results" class="mt-4"></div>
+    </div>
+    <script>
+        document.getElementById('query-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const form = new FormData(this);
+            const response = await fetch('/search', { method: 'POST', body: form });
+            const result = await response.json();
+            const resultDiv = document.getElementById('results');
+            resultDiv.innerHTML = '';
+            
+            if (result.error) {
+                resultDiv.innerHTML = `<div class="alert alert-danger">${result.error}</div>`;
+            } else if (result.result) {  // SQL query results
+                const table = document.createElement('table');
+                table.className = 'table table-bordered';
+                const keys = Object.keys(result.result[0]);
+                const thead = document.createElement('thead');
+                const tbody = document.createElement('tbody');
+                const headRow = document.createElement('tr');
+                keys.forEach(key => {
+                    const th = document.createElement('th');
+                    th.textContent = key;
+                    headRow.appendChild(th);
+                });
+                thead.appendChild(headRow);
+                result.result.forEach(row => {
+                    const bodyRow = document.createElement('tr');
+                    keys.forEach(key => {
+                        const td = document.createElement('td');
+                        td.textContent = row[key];
+                        bodyRow.appendChild(td);
+                    });
+                    tbody.appendChild(bodyRow);
+                });
+                table.appendChild(thead);
+                table.appendChild(tbody);
+                resultDiv.appendChild(table);
+            } else if (result.response) {  // Plain text response
+                resultDiv.innerHTML = `<div class="alert alert-info">${result.response}</div>`;
+            }
+        });
+    </script>
+    
+</body>
+</html>
