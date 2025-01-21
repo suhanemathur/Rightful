@@ -63,7 +63,7 @@ async def search():
 
 if __name__ == '__main__':
     app.run(
-        host=os.getenv("FRONTEND_HOST", "127.0.0.1"), 
+        host=os.getenv("FRONTEND_HOST", "192.168.1.8"), 
         port=int(os.getenv("FRONTEND_PORT", 5001)),   
         debug=True
     )
